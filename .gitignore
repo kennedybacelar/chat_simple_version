@@ -1,0 +1,6 @@
+__pycache__
+SUPPORT
+*.env
+*.pyc
+*.pyo
+*.log
