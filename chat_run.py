@@ -22,7 +22,7 @@ def load_model():
   model = NeuralNet(input_size, hidden_size, output_size).to(device)
   return model
 
-def conversa(sentence):
+def conversa():
 
   data = load_dataPTH_file()
   model = load_model()
@@ -38,25 +38,32 @@ def conversa(sentence):
 
   bot_name = "Sam"
 
-  sentence = tokenize(sentence)
-  X = bag_of_words(sentence, all_words)
-  X = X.reshape(1, X.shape[0])
-  X = torch.from_numpy(X).to(device)
+  print("Let's chat! (type 'quit' to exit)")
 
-  output = model(X)
-  _, predicted = torch.max(output, dim=1)
+  while(True):
+    sentence = input('').lower().strip()
+    if sentence == 'quit':
+      break
+    else:
+      sentence = tokenize(sentence)
 
-  tag = tags[predicted.item()]
+      X = bag_of_words(sentence, all_words)
+      X = X.reshape(1, X.shape[0])
+      X = torch.from_numpy(X).to(device)
 
-  probs = torch.softmax(output, dim=1)
-  prob = probs[0][predicted.item()]
-  if prob.item() > 0.8:
-      for intent in intents['intents']:
-          if tag == intent["tag"]:
-              print(f"{bot_name}: {random.choice(intent['responses'])}")
-              #return f"{bot_name}: {random.choice(intent['responses'])}"
-  else:
-      print(f"{bot_name}: I do not understand...")
+      output = model(X)
+      _, predicted = torch.max(output, dim=1)
+
+      tag = tags[predicted.item()]
+
+      probs = torch.softmax(output, dim=1)
+      prob = probs[0][predicted.item()]
+      if prob.item() > 0.8:
+          for intent in intents['intents']:
+              if tag == intent["tag"]:
+                  print(f"{bot_name}: {random.choice(intent['responses'])}")
+      else:
+          print(f"{bot_name}: I do not understand...")
 
 if __name__ == '__main__':
   if not os.path.isfile(FILE):
@@ -65,9 +72,4 @@ if __name__ == '__main__':
     read_input = input('Would you like to retrain the model? Y/N\n').lower()
     if read_input == 'y':
       train.train()
-  print("Let's chat! (type 'quit' to exit)")
-  while(True):
-    sentence = input('')
-    if sentence == 'quit':
-      break
-    conversa(sentence)
+  conversa()
